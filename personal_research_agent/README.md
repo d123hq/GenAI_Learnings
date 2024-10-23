@@ -1,5 +1,4 @@
-# Start the backend
-
+# Start the backend file
 ```
 univorn backend:app --reload
 ```
@@ -8,4 +7,8 @@ univorn backend:app --reload
 
 ```
 streamlit run frontend.py
+```
+For running the application from the docker-compose file, use the following command
+```
+docker-compose up --build
 ```
