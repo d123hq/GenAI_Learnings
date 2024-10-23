@@ -1,0 +1,25 @@
+version: '3'
+services:
+  frontend:
+    build: 
+      context: ./frontend
+    container_name: frontend
+    ports:
+      - "8501:8501"  # Streamlit runs on port 8501 by default
+    volumes:
+      - ./frontend:/app
+    env_file:
+      - .env  # Load environment variables from .env
+    command: streamlit run frontend.py
+
+  backend:
+    build: 
+      context: ./backend
+    container_name: backend
+    ports:
+      - "8000:8000"  # FastAPI runs on port 8000 by default
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .env  # Load environment variables from .env
+    command: uvicorn backend:app --reload --host 0.0.0.0 --port 8000

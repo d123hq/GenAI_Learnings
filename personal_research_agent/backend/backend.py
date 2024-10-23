@@ -12,7 +12,6 @@ from langgraph.graph import END, StateGraph
 from langchain_groq import ChatGroq
 from langchain_community.tools import TavilySearchResults
 from typing_extensions import TypedDict
-from IPython.display import display, Markdown, Latex
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Dict
@@ -23,11 +22,12 @@ import openai
 from dotenv import load_dotenv
 
 _ = load_dotenv()
-# Defining LLM
-llm = ChatOpenAI(model='gpt-4o-mini', api_key = openai.api_key, temperature=0)
+api_key = os.environ['GROQ_API_KEY']
 
-
-llama_llm = ChatGroq(model="llama3-8b-8192",temperature=0.0,max_retries=2)
+llama_llm = ChatGroq(api_key = api_key,
+                     model="llama3-8b-8192",
+                     temperature=0.0,
+                     max_retries=2)
 
 
 web_search_tool = TavilySearchResults(max_results=5,search_depth="advanced",include_answer=True)
