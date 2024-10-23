@@ -6,6 +6,10 @@ import requests
 st.title("Personal Research Assistant")
 user_query = st.text_input("Enter your question:", "")
 
+# Initialize chat history in session state
+if 'chat_history' not in st.session_state:
+    st.session_state.chat_history = []
+
 if st.button("Run Query"):
     if user_query:
         # Use the service name for backend URL
@@ -17,9 +21,17 @@ if st.button("Run Query"):
                 response = requests.post(backend_url, json={"question": user_query})
                 response.raise_for_status()  # Raise an error for bad responses
                 
-                # If the request is successful, display the result
+                # If the request is successful, update chat history
                 data = response.json()
-                st.write(data['generation'])
+                
+                # Append the latest question and answer to session state
+                st.session_state.chat_history.append({"user": user_query, "assistant": data['generation']})
+                
+                # Display updated chat history
+                for chat in st.session_state.chat_history:
+                    st.write(f"**You:** {chat['user']}")
+                    st.write(f"**Assistant:** {chat['assistant']}")
+                    
             except requests.exceptions.HTTPError as http_err:
                 st.write(f"HTTP error occurred: {http_err}")
             except requests.exceptions.RequestException as req_err:
@@ -28,4 +40,7 @@ if st.button("Run Query"):
                 st.write(f"An unexpected error occurred: {e}")
     else:
         st.write("Please enter a question before running the query.")
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
