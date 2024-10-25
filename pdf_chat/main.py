@@ -12,28 +12,32 @@ from dotenv import load_dotenv, find_dotenv
 import os
 import openai
 load_dotenv(find_dotenv())
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8f1bbe9 (updated codes)
 
 openai.api_key = os.environ['OPENAI_API_KEY']
+
 def pdf_read(pdf_doc):
     text = ""
     for pdf in pdf_doc:
         pdf_reader = PdfReader(pdf)
         for page in pdf_reader.pages:
-            text +=page.extract_text()
+            text += page.extract_text()
     return text
 
 def get_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000,
                                                    chunk_overlap = 200,
                                                    )
-    chunks = text_splitter.text(text)
+    chunks = text_splitter.split_text(text)
     return chunks
 
-embeddings = OpenAIEmbeddings()
+openaiembeddings = OpenAIEmbeddings()
 
 def vector_store(text_chunks):
-    vector_store = FAISS.from_texts(text_chunks, embedding = embeddings)
+    vector_store = FAISS.from_texts(text_chunks, embedding = openaiembeddings)
     vector_store.save_local("faiss_db")
     return vector_store
 
@@ -55,30 +59,30 @@ def get_conversational_chain(llm, tools, query):
     
     # Execute the agent to process the user's query and get a response
     agent_executor = AgentExecutor(agent=agent, tools=tool, verbose=True)
-    response = agent_executor.invoke({"input": ques})
+    response = agent_executor.invoke({"input": query})
     return(response['output'])
 
 llm = ChatOpenAI(api_key = openai.api_key,
-                       model = 'gpt-4o-mini',
-                       temperature = 0)
+                 model = 'gpt-4o-mini',
+                 temperature = 0)
 
 def user_input(user_question):
     # Load the vector database
-    new_db = FAISS.load_local("faiss_db", embeddings, allow_dangerous_deserialization=True)
+    new_db = FAISS.load_local("faiss_db", openaiembeddings, allow_dangerous_deserialization=True)
     
     # Create a retriever from the vector database
     retriever = new_db.as_retriever()
+    
     retrieval_chain = create_retriever_tool(retriever, "pdf_extractor", "This tool is to give answers to queries from the PDF")
     
     # Get the conversational chain to generate a response
-    get_conversational_chain(llm, retrieval_chain, user_question)
+    output = get_conversational_chain(llm, retrieval_chain, user_question)
+    return output
     
 def main():
     st.set_page_config("Chat PDF")
     st.header("RAG based Chat with PDF")
     user_question = st.text_input("Ask a Question from the PDF Files")
-    if user_question:
-        user_input(user_question)
     with st.sidebar:
         st.title("Menu:")
         pdf_doc = st.file_uploader("Upload your PDF Files and Click on the Submit & Process Button", accept_multiple_files=True)
@@ -88,6 +92,11 @@ def main():
                 text_chunks = get_chunks(raw_text)
                 vector_store(text_chunks)
                 st.success("Done")
+    
+    if user_question:
+        response = user_input(user_question)
+        st.write(response)
+        
 
 if __name__ == "__main__":
     main()
