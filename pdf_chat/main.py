@@ -12,7 +12,7 @@ from dotenv import load_dotenv, find_dotenv
 import os
 import openai
 load_dotenv(find_dotenv())
-# os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"  # Setting environment variable to avoid potential conflicts
+
 
 openai.api_key = os.environ['OPENAI_API_KEY']
 def pdf_read(pdf_doc):
